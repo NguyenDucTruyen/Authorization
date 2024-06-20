@@ -1,6 +1,6 @@
 const bodyParser = require('body-parser')
 const express = require('express')
-const   = require('morgan')
+const  logger  = require('morgan')
 const mongoClient = require('mongoose')
 
 // setup connect mongodb by mongoose

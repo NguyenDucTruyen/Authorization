@@ -4,10 +4,10 @@ const  logger  = require('morgan')
 const mongoClient = require('mongoose')
 
 // setup connect mongodb by mongoose
-mongoClient.connect('mongodb://localhost/nodejsapistarter', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    })
+mongoClient.connect('mongodb://127.0.0.1/nodejsapistarter', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
     .then(() => console.log('✅ Connected database from mongodb.'))
     .catch((error) => console.error(`❌ Connect database is failed with error which is ${error}`))
 

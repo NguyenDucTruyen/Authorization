@@ -1,10 +1,3 @@
-/**
- * We can interact with mongoose in three diffirent ways:
- * [v] Callback
- * [v] Promises
- * [v] Async/await (Promises)
- */
-
  const Deck = require('../models/Deck')
  const User = require('../models/User')
 

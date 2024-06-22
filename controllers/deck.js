@@ -1,10 +1,3 @@
-/**
- * We can interact with mongoose in three diffirent ways:
- * [v] Callback
- * [v] Promises
- * [v] Async/await (Promises)
- */
-
 const Deck = require('../models/Deck')
 const User = require('../models/User')
 
@@ -31,20 +24,20 @@ const deleteDeck = async (req, res, next) => {
 const getDeck = async (req, res, next) => {
     const deck = await Deck.findById(req.value.params.deckID)
 
-    return res.status(200).json({deck})
+    return res.status(200).json({ deck })
 }
 
 const index = async (req, res, next) => {
     const decks = await Deck.find({})
 
-    return res.status(200).json({decks})
+    return res.status(200).json({ decks })
 }
 
 const newDeck = async (req, res, next) => {
-   // Find owner
-   const owner = await User.findById(req.value.body.owner)
+    // Find owner
+    const owner = await User.findById(req.value.body.owner)
 
-   // Create a new deck
+    // Create a new deck
     const deck = req.value.body
     delete deck.owner
 
@@ -56,7 +49,7 @@ const newDeck = async (req, res, next) => {
     owner.decks.push(newDeck._id)
     await owner.save()
 
-    return res.status(201).json({deck: newDeck})
+    return res.status(201).json({ deck: newDeck })
 }
 
 const replaceDeck = async (req, res, next) => {
@@ -64,7 +57,19 @@ const replaceDeck = async (req, res, next) => {
     const newDeck = req.value.body
     const result = await Deck.findByIdAndUpdate(deckID, newDeck)
     // Check if put user, remove deck in user's model
-    return res.status(200).json({ success: true })
+    if (newDeck.owner !== result.owner) {
+        const oldOwner = await User.findById(result.owner)
+        oldOwner.decks.pull(result)
+        await oldOwner.save()
+
+        const newOwner = await User.findById(newDeck.owner)
+        newOwner.decks.push(result)
+        await newOwner.save()
+    }
+    return res.status(200).json({
+        message: 'Deck updated',
+        data: newDeck
+    })
 }
 
 const updateDeck = async (req, res, next) => {
@@ -72,7 +77,19 @@ const updateDeck = async (req, res, next) => {
     const newDeck = req.value.body
     const result = await Deck.findByIdAndUpdate(deckID, newDeck)
     // Check if put user, remove deck in user's model
-    return res.status(200).json({ success: true })
+    if (newDeck.owner && newDeck.owner !== result.owner) {
+        const oldOwner = await User.findById(result.owner)
+        oldOwner.decks.pull(result)
+        await oldOwner.save()
+
+        const newOwner = await User.findById(newDeck.owner)
+        newOwner.decks.push(result)
+        await newOwner.save()
+    }
+    return res.status(200).json({
+        message: 'Deck updated',
+        data: newDeck
+    })
 }
 
 module.exports = {

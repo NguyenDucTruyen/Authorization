@@ -1,27 +1,40 @@
- const Deck = require('../models/Deck')
- const User = require('../models/User')
+const Deck = require('../models/Deck')
+const Dotenv = require('dotenv')
+Dotenv.config()
+const User = require('../models/User')
+const jwt = require('jsonwebtoken');
 
- const getUser = async (req, res, next) => {
+
+const encode = (UserID) => {
+    return jwt.sign({
+        iss: 'Truyen Duc',
+        sub: UserID,
+        iat: new Date().getTime(),
+        exp: new Date().setDate(new Date().getDate() + 1)
+    }, process.env.SECRET_KEY)
+}
+
+const getUser = async (req, res, next) => {
     const { userID } = req.value.params
 
     const user = await User.findById(userID)
 
-    return res.status(200).json({user})
- }
+    return res.status(200).json({ user })
+}
 
- const getUserDecks = async (req, res, next) => {
+const getUserDecks = async (req, res, next) => {
     const { userID } = req.value.params
 
     // Get user
     const user = await User.findById(userID).populate('decks')
 
-    return res.status(200).json({decks: user.decks})
- }
+    return res.status(200).json({ decks: user.decks })
+}
 
 const index = async (req, res, next) => {
     const users = await User.find({})
 
-    return res.status(200).json({users})
+    return res.status(200).json({ users })
 }
 
 const newUser = async (req, res, next) => {
@@ -29,7 +42,7 @@ const newUser = async (req, res, next) => {
 
     await newUser.save()
 
-    return res.status(201).json({user: newUser})
+    return res.status(201).json({ user: newUser })
 }
 
 const newUserDeck = async (req, res, next) => {
@@ -53,7 +66,7 @@ const newUserDeck = async (req, res, next) => {
     // Save the user
     await user.save()
 
-    res.status(201).json({deck: newDeck})
+    res.status(201).json({ deck: newDeck })
 }
 
 const replaceUser = async (req, res, next) => {
@@ -64,7 +77,33 @@ const replaceUser = async (req, res, next) => {
 
     const result = await User.findByIdAndUpdate(userID, newUser)
 
-    return res.status(200).json({success: true})
+    return res.status(200).json({ success: true })
+}
+
+const signIn = async (req, res, next) => {
+    const { email, password } = req.value.body
+}
+const signUp = async (req, res, next) => {
+    const { email, firstName, lastName, password } = req.value.body
+    const foundUser = await User.findOne({ email })
+    if (foundUser) {
+        return res.status(403).json({
+            error: {
+                message: 'Email already exist'
+            }
+        })
+    }
+    const newUser = new User({ email, firstName, lastName, password })
+    await newUser.save()
+    const token = encode(newUser._id)
+    return res.status(201).json({ message: 'success', token })
+}
+
+const secret = async (req, res, next) => {
+    return res.status(200).json({
+        message: 'Valid Token',
+        user: req.user
+    })
 }
 
 const updateUser = async (req, res, next) => {
@@ -75,7 +114,7 @@ const updateUser = async (req, res, next) => {
 
     const result = await User.findByIdAndUpdate(userID, newUser)
 
-    return res.status(200).json({success: true})
+    return res.status(200).json({ success: true })
 }
 
 module.exports = {
@@ -85,5 +124,8 @@ module.exports = {
     newUser,
     newUserDeck,
     replaceUser,
-    updateUser
+    updateUser,
+    signIn,
+    signUp,
+    secret
 }

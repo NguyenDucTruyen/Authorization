@@ -10,7 +10,10 @@ router.route('/')
 	.get(UserController.index)
 	.post(validateBody(schemas.userSchema), UserController.newUser)
 
+router.post('/auth/google', passport.authenticate('google-plus-token'), UserController.authGoogle);
+
 router.post('/signup', validateBody(schemas.signUpSchema), UserController.signUp)
+router.post('/signin', validateBody(schemas.signInSchema), UserController.signIn)
 router.get('/secret', passport.authenticate('jwt', { session: false }), UserController.secret)
 router.route('/:userID')
 	.get(validateParam(schemas.idSchema, 'userID'), UserController.getUser)

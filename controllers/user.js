@@ -3,7 +3,7 @@ const Dotenv = require('dotenv')
 Dotenv.config()
 const User = require('../models/User')
 const jwt = require('jsonwebtoken');
-
+const bcrypt = require('bcryptjs');
 
 const encode = (UserID) => {
     return jwt.sign({
@@ -14,6 +14,9 @@ const encode = (UserID) => {
     }, process.env.SECRET_KEY)
 }
 
+const authGoogle = async (req, res, next) => {
+    console.log('Auth Google')
+}
 const getUser = async (req, res, next) => {
     const { userID } = req.value.params
 
@@ -82,8 +85,26 @@ const replaceUser = async (req, res, next) => {
 
 const signIn = async (req, res, next) => {
     const { email, password } = req.value.body
+    const userExist = await User.findOne({ email })
+    if (!userExist)
+        return res.status(401).json({
+            error: {
+                message: 'User not exists!'
+            }
+        })
+    const isMatch = bcrypt.compareSync(password, userExist.password)
+    if (isMatch) {
+        const token = encode(userExist._id)
+        return res.status(200).json({
+            message: 'success',
+            token
+        })
+    }
+    else return res.status(401).json({
+        message: 'Incorrect password',
+    })
 }
-const signUp = async (req, res, next) => {
+const signUp = async (req, res) => {
     const { email, firstName, lastName, password } = req.value.body
     const foundUser = await User.findOne({ email })
     if (foundUser) {
@@ -93,7 +114,9 @@ const signUp = async (req, res, next) => {
             }
         })
     }
-    const newUser = new User({ email, firstName, lastName, password })
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+    const newUser = new User({ email, firstName, lastName, password: hash })
     await newUser.save()
     const token = encode(newUser._id)
     return res.status(201).json({ message: 'success', token })
@@ -118,6 +141,7 @@ const updateUser = async (req, res, next) => {
 }
 
 module.exports = {
+    authGoogle,
     getUser,
     getUserDecks,
     index,

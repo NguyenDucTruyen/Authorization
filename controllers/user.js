@@ -15,7 +15,11 @@ const encode = (UserID) => {
 }
 
 const authGoogle = async (req, res, next) => {
-    console.log('Auth Google')
+    const token = encode(req.user)
+    return res.status(200).json({
+        message: 'success',
+        token
+    })
 }
 const getUser = async (req, res, next) => {
     const { userID } = req.value.params
@@ -124,8 +128,8 @@ const signUp = async (req, res) => {
 
 const secret = async (req, res, next) => {
     return res.status(200).json({
-        message: 'Valid Token',
-        user: req.user
+        message: 'Success',
+        user: req.value.user
     })
 }
 

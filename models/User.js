@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { authGoogle } = require('../controllers/user')
 const Schema = mongoose.Schema
 
 const UserSchema = new Schema({
@@ -16,7 +17,17 @@ const UserSchema = new Schema({
     },
     password: {
         type: String,
-        required: true
+    },
+    authGoogleId: {
+        type: String
+    },
+    authFacebookId: {
+        type: String
+    },
+    authType:{
+        type: String,
+        enum: ['local','google','facebook'],
+        default: 'local'
     },
     decks: [{
         type: Schema.Types.ObjectId,

@@ -1,5 +1,20 @@
 const Joi = require('@hapi/joi')
 
+const auth = (...role) => {
+    return async (req, res, next) => {
+        if (req.user === 'expired') return res.status(401).json({
+            error: {
+                message: 'Token exprired'
+            }
+        })
+        if (!req.value) req.value = {}
+        if (!req.value.user) req.value.user = {}
+        req.value.user = req.user
+
+        next()
+    }
+}
+
 const validateBody = (schema) => {
     return (req, res, next) => {
         const validatorResult = schema.validate(req.body)
@@ -90,6 +105,7 @@ const schemas = {
 }
 
 module.exports = {
+    auth,
     validateBody,
     validateParam,
     schemas

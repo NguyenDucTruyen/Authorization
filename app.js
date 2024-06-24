@@ -2,12 +2,15 @@ const bodyParser = require('body-parser')
 const express = require('express')
 const  logger  = require('morgan')
 const mongoClient = require('mongoose')
+require('dotenv').config()
 
 // setup connect mongodb by mongoose
-mongoClient.connect('mongodb://127.0.0.1/nodejsapistarter', {
+const url = `mongodb+srv://nguyenductruyen:${process.env.MONGO_ATLAS_PASSWORD}@nguyenductruyen.yniawpu.mongodb.net/?retryWrites=true&w=majority&appName=nguyenductruyen`
+mongoClient.connect(url, {
 	useCreateIndex: true,
 	useNewUrlParser: true,
-	useUnifiedTopology: true
+	useUnifiedTopology: true,
+	dbName:'NodeJSApi'
 })
 	.then(() => console.log('✅ Connected database from mongodb.'))
 	.catch((error) => console.error(`❌ Connect database is failed with error which is ${error}`))

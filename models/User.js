@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const { authGoogle } = require('../controllers/user')
 const Schema = mongoose.Schema
 
 const UserSchema = new Schema({
@@ -11,8 +10,7 @@ const UserSchema = new Schema({
     },
     email: {
         type: String,
-        required: true,
-        unique: true,
+        // unique: true,
         lowercase: true
     },
     password: {

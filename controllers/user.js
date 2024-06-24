@@ -14,6 +14,13 @@ const encode = (UserID) => {
     }, process.env.SECRET_KEY)
 }
 
+const authFacebook = async (req, res, next) => {
+    const token = encode(req.user)
+    return res.status(200).json({
+        message: 'success',
+        token
+    })
+}
 const authGoogle = async (req, res, next) => {
     const token = encode(req.user)
     return res.status(200).json({
@@ -145,6 +152,7 @@ const updateUser = async (req, res, next) => {
 }
 
 module.exports = {
+    authFacebook,
     authGoogle,
     getUser,
     getUserDecks,
